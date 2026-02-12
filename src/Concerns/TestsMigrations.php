@@ -20,8 +20,9 @@ trait TestsMigrations
      */
     protected function assertMigrationCycle(string $path, array $tables): void
     {
-        $this->loadMigrationsFrom($path);
-        $this->artisan('migrate', ['--database' => 'testing'])->run();
+        $options = ['--path' => $path, '--realpath' => true, '--database' => 'testing'];
+
+        $this->artisan('migrate', $options)->run();
 
         foreach ($tables as $table) {
             Assert::assertTrue(
@@ -30,7 +31,7 @@ trait TestsMigrations
             );
         }
 
-        $this->artisan('migrate:rollback', ['--database' => 'testing'])->run();
+        $this->artisan('migrate:rollback', $options)->run();
 
         foreach ($tables as $table) {
             Assert::assertFalse(
@@ -47,10 +48,10 @@ trait TestsMigrations
      */
     protected function assertSurvivesInstallCycles(string $path, array $tables, int $cycles = 3): void
     {
-        $this->loadMigrationsFrom($path);
+        $options = ['--path' => $path, '--realpath' => true, '--database' => 'testing'];
 
         for ($i = 0; $i < $cycles; $i++) {
-            $this->artisan('migrate', ['--database' => 'testing'])->run();
+            $this->artisan('migrate', $options)->run();
 
             foreach ($tables as $table) {
                 Assert::assertTrue(
@@ -59,11 +60,11 @@ trait TestsMigrations
                 );
             }
 
-            $this->artisan('migrate:rollback', ['--database' => 'testing'])->run();
+            $this->artisan('migrate:rollback', $options)->run();
         }
 
         // Final install — tables should exist
-        $this->artisan('migrate', ['--database' => 'testing'])->run();
+        $this->artisan('migrate', $options)->run();
 
         foreach ($tables as $table) {
             Assert::assertTrue(
@@ -158,12 +159,13 @@ trait TestsMigrations
         array $seedData,
         array $columns,
     ): void {
-        $this->loadMigrationsFrom($path);
-        $this->artisan('migrate', ['--database' => 'testing'])->run();
+        $options = ['--path' => $path, '--realpath' => true, '--database' => 'testing'];
+
+        $this->artisan('migrate', $options)->run();
 
         // Rollback and re-migrate to verify schema stability
-        $this->artisan('migrate:rollback', ['--database' => 'testing'])->run();
-        $this->artisan('migrate', ['--database' => 'testing'])->run();
+        $this->artisan('migrate:rollback', $options)->run();
+        $this->artisan('migrate', $options)->run();
 
         // Insert seed data into the re-migrated schema
         DB::table($table)->insert($seedData);
