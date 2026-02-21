@@ -10,7 +10,7 @@
         }
     ],
     "require": {
-        "php": "^8.3",
+        "php": "^8.2",
         "mockery/mockery": "^1.6",
         "orchestra/testbench": "^9.0 || ^10.0"
     },
